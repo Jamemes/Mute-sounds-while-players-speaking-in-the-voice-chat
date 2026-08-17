@@ -2,7 +2,7 @@
 	"name": "Mute sounds while players speaking in the voice chat",
 	"description": "",
 	"author": "James",
-	"version": "3",
+	"version": "4",
 	"priority": 1,
 	"hooks": [
 		{"hook_id": "lib/managers/localizationmanager",					"script_path": "mute.lua"},

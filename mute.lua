@@ -52,13 +52,13 @@ if string.lower(RequiredScript) == "lib/managers/localizationmanager" then
 		end
 	end)
 elseif string.lower(RequiredScript) == "lib/network/matchmaking/networkvoicechatsteam" then
-	local function mute()
+	local function mute(mute_sounds)
 		local sfx = managers.user:get_setting("sfx_volume")
 		local music = managers.user:get_setting("music_volume")
 		local mute_volume = _G.MuteSounds.settings.mute_volume / 100 or 1
 		
-		SoundDevice:set_rtpc("option_sfx_volume", sfx * mute_volume)
-		SoundDevice:set_rtpc("option_music_volume", music * mute_volume)
+		SoundDevice:set_rtpc("option_sfx_volume", mute_sounds and sfx * mute_volume or sfx)
+		SoundDevice:set_rtpc("option_music_volume", mute_sounds and music * mute_volume or music)
 	end
 
 	Hooks:PostHook(NetworkVoiceChatSTEAM, "update", "MuteSounds_mute_volumes", function(self)
@@ -66,8 +66,14 @@ elseif string.lower(RequiredScript) == "lib/network/matchmaking/networkvoicechat
 		local playing = self.handler:get_voice_receivers_playing()
 		for id, pl in pairs(playing) do
 			local peer_talk = self._users_talking[id]
-			if self._enabled and peer_talk ~= nil and peer_talk.time ~= nil and t < peer_talk.time + 0.5 then
-				mute()
+			if self._enabled then
+				if peer_talk.active and not self.mute then
+					mute(true)
+					self.mute = true
+				elseif not peer_talk.active and self.mute then
+					mute()
+					self.mute = nil
+				end
 			end
 		end
 	end)
